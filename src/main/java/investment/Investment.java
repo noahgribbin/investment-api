@@ -9,4 +9,10 @@ public class Investment {
     this.yearlyIncome = yearlyIncome;
   }
 
+  public int getInvestmentAmmount() {
+    return this.investmentAmmount;
+  }
+  public int getyearlyIncome() {
+    return this.yearlyIncome;
+  }
 }
