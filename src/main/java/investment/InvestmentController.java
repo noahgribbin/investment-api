@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class InvestmentController {
     @RequestMapping(path="/getFinancials")
     public Financials getFinancials(
-      @RequestParam(value="investmentAmount", defaultValue="200000") int investmentAmount,
-      @RequestParam(value="yearlyIncome", defaultValue="1500") int yearlyIncome,
+      @RequestParam(value="investmentAmount") int investmentAmount,
+      @RequestParam(value="yearlyIncome") int yearlyIncome,
       @RequestParam(value="yearlyInvestmentGrowth", defaultValue="1.05") double yearlyInvestmentGrowth,
       @RequestParam(value="yearlyIncomeGrowth", defaultValue="1.03") double yearlyIncomeGrowth,
       @RequestParam(value="inflation", defaultValue="1.018") double inflation){
@@ -24,8 +24,8 @@ public class InvestmentController {
       }
     @RequestMapping(path="/getYearlyDetails")
     public YearlyReport[] getYeaerlyDetails(
-    @RequestParam(value="investmentAmount", defaultValue="500000") int investmentAmount,
-    @RequestParam(value="yearlyIncome", defaultValue="2500") int yearlyIncome,
+    @RequestParam(value="investmentAmount") int investmentAmount,
+    @RequestParam(value="yearlyIncome") int yearlyIncome,
     @RequestParam(value="yearlyInvestmentGrowth", defaultValue="1.05") double yearlyInvestmentGrowth,
     @RequestParam(value="yearlyIncomeGrowth", defaultValue="1.03") double yearlyIncomeGrowth,
     @RequestParam(value="inflation", defaultValue="1.018") double inflation) {
