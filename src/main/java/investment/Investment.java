@@ -1,11 +1,17 @@
 package investment;
 
 import java.lang.Math;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
+import investment.YearlyReport;
+import investment.Financials;
+
 public class Investment {
   public double investmentAmount;
   public double yearlyIncome;
   public double yearsInvested = 30;
-  public double inflation = 1.8;
+  public double inflation = 1.018;
   public double priceAppreciation  = 1.05;
   public double incomeAppreciation  = 1.03;
 
@@ -14,20 +20,29 @@ public class Investment {
   public double CAGR;
   public double IRR;
 
-  public Investment(double investmentAmount, int yearlyIncome) {
+  public YearlyReport[] ventureDetails;
+  public Financials financials;
+
+  public Investment(double investmentAmount, int yearlyIncome, double priceAppreciation, double incomeAppreciation, double inflation) {
     this.investmentAmount = investmentAmount;
     this.yearlyIncome = yearlyIncome;
     this.yearsInvested = yearsInvested;
-    this.priceAppreciation  = priceAppreciation ;
-    this.incomeAppreciation  = incomeAppreciation ;
+    this.priceAppreciation = priceAppreciation;
+    this.incomeAppreciation = incomeAppreciation;
+    this.inflation = inflation;
   }
 
   public double getInvestmentAmount() {
     return this.investmentAmount;
   }
 
-  public double getyearlyIncome() {
+  public double getYearlyIncome() {
     return this.yearlyIncome;
+  }
+
+  public double getNthYearPrice(double n) {
+      double lastYearPrice = (Math.pow(this.priceAppreciation , n) * this.investmentAmount);
+      return lastYearPrice;
   }
 
   public double getLastYearPrice() {
@@ -46,18 +61,26 @@ public class Investment {
     return nthYearIncome;
   }
 
+  public double getNthYearIncomeAfterInflation(double n) {
+    return this.getNthYearIncome(n) * this.inflation;
+  }
+
   public double getFirstYearCashflow() {
     return  (0 - this.investmentAmount) + this.yearlyIncome;
+  }
+
+  public double getLastYearCashflow() {
+    return this.getLastYearPrice() + this.getNthYearIncomeAfterInflation(this.yearsInvested);
   }
 
   public double[] getVentureCashflow() {
     double[] cashflows;
     int years = (int)this.yearsInvested;
-    cashflows = new double[years];
+    cashflows = new double[years + 1];
     cashflows[0] = this.getFirstYearCashflow();
-    cashflows[years - 1] = this.getLastYearPrice() + this.getLastYearIncome();
-    for (int i = 1 ; i <= this.yearsInvested - 2; i++ ) {
-      cashflows[i] = this.getNthYearIncome(i + 1);
+    cashflows[years] = this.getLastYearCashflow();
+    for (int i = 1 ; i <= years - 1; i++ ) {
+      cashflows[i] = this.getNthYearIncomeAfterInflation(i);
     }
     return this.cashflows = cashflows;
   }
@@ -72,65 +95,57 @@ public class Investment {
   public double getCAGR() {
     double exponent = 1 / this.yearsInvested;
     double CAGR = Math.pow(this.ROI, exponent);
-    return this.CAGR = CAGR;
-    //  could be rounded
+    return this.CAGR = CAGR - 1;
   }
 
-  public double getIRR(double cf[], int numOfFlows){
-    double LOW_RATE = 0.01;
-    double HIGH_RATE = 0.5;
-    double MAX_ITERATION = 1000;
-    double PRECISION_REQ = 0.00000001;
-    int i = 0;
-    int j = 0;
-    double m = 0.0;
-    double old = 0.00;
-    double New = 0.00;
-    double oldguessRate = LOW_RATE;
-    double newguessRate = LOW_RATE;
-    double guessRate = LOW_RATE;
-    double lowGuessRate = LOW_RATE;
-    double highGuessRate = HIGH_RATE;
-    double npv = 0.0;
-    double denom = 0.0;
-   for(i=0; i<MAX_ITERATION; i++){
-      npv = 0.00;
-      for(j=0; j<numOfFlows; j++){
-       denom = Math.pow((1 + guessRate),j);
-       npv = npv + (cf[j]/denom);
+  public double getIRR(double cashFlows[]){
+    int maxIteration = 30;
+    double checkEpsilon = 0.0000001;
+    double x = 0.1;
+
+    for (int i = 0; i < maxIteration; i++ ) {
+      double x1 = 1.0 + x;
+      double fx = 0.0;
+      double dfx = 0.0;
+      for (int j = 0; j < cashFlows.length; j++) {
+        double v = cashFlows[j];
+        double x1_j = Math.pow(x1, j);
+        fx += v / x1_j;
+        double x1_j1 = x1_j * x1;
+        dfx += -j * v / x1_j1;
       }
+      double new_x = x - fx / dfx;
+      double epsilon = Math.abs(new_x - x);
 
-      // stop checking if percise enough
-      if((npv > 0) && (npv < PRECISION_REQ)){
-
-        System.out.println("i: " + i);
-        break;
-      }
-
-      if(old == 0)
-        old = npv;
-      else
-        old = New;
-        New = npv;
-      if(i > 0){
-        if(old < New){
-          if(old < 0 && New < 0)
-            highGuessRate = newguessRate;
-          else
-            lowGuessRate = newguessRate;
+      if (epsilon <= checkEpsilon) {
+        if (x == 0.0 && Math.abs(new_x) <= checkEpsilon) {
+          return this.IRR = 0.0;
         }
-        else{
-          if(old > 0 && New > 0)
-            lowGuessRate = newguessRate;
-          else
-            highGuessRate = newguessRate;
+        else {
+          return this.IRR = new_x;
         }
       }
-      oldguessRate = guessRate;
-      guessRate = (lowGuessRate + highGuessRate) / 2;
-      newguessRate = guessRate;
-   }
-   return this.IRR = guessRate;
+      x = new_x;
+    }
+    return this.IRR = x;
   }
+
+  public YearlyReport[] getVentureDetails() {
+      YearlyReport[] ventureDetails;
+      int years = (int)this.yearsInvested;
+      ventureDetails = new YearlyReport[years + 1];
+      ventureDetails[0] = new investment.YearlyReport(this.investmentAmount, this.yearlyIncome, this.getNthYearIncomeAfterInflation(0), this.getFirstYearCashflow());
+      ventureDetails[years] = new investment.YearlyReport(this.getLastYearPrice(), this.getLastYearIncome(), this.getNthYearIncomeAfterInflation(years), this.getLastYearCashflow());
+      for (int i = 1; i <= years - 1; i++ ) {
+        ventureDetails[i] = new investment.YearlyReport(this.getNthYearPrice(i), this.getNthYearIncome(i), getNthYearIncomeAfterInflation(i), this.getNthYearIncomeAfterInflation(i));
+      }
+      return this.ventureDetails = ventureDetails;
+  }
+
+  public Financials getFinancials() {
+    Financials financials;
+    financials = new investment.Financials(this.ROI, this.CAGR, this.IRR);
+    return this.financials = financials;
+  };
 
 }
