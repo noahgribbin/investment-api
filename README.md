@@ -1,8 +1,8 @@
 # Investment-api
 
-This is an API that calculates financial information about the worthiness of a venture. 
+ #### This is an API that calculates financial information about the worthiness of a venture. 
 
-* URL : http://javaapi-env.ufwrj6szqa.us-west-1.elasticbeanstalk.com
+ ##### URL : http://javaapi-env.ufwrj6szqa.us-west-1.elasticbeanstalk.com
 
  ## API Calls
 
@@ -112,3 +112,14 @@ This is an API that calculates financial information about the worthiness of a v
       * Body: {error: Bad Request}
     
   This error may be cause by ommiting a required paramater, or by providing an invalid type.
+
+## Running Locally
+
+ #### If you would like to run this project locally follow these instructions.
+  * Clone this repo  ```git clone https://github.com/noahgribbin/investment-api.git```
+  * Navigate into the new directory ```cd investment-api```
+  * Build the project with Gradle ``` gradle build ```
+     * If you do not have Gradle installed you can find instructions on how to do so here https://gradle.org/install/
+  * Navigate to the ```build/lib``` directory
+  * Start the ```.jar``` file with ```java -jar investment-api-0.1.0.jar```
+  * The project will be up and running on ```localhost:8080``` and awaiting requests
